@@ -1,0 +1,121 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+	<meta charset="UTF-8">
+	<title>Particules</title>
+</head>
+<body>
+	<script type="text/javascript">
+
+	window.requestAnimFrame = (function(){
+  	return  window.requestAnimationFrame     ||
+          window.webkitRequestAnimationFrame ||
+          window.mozRequestAnimationFrame    ||
+          window.oRequestAnimationFrame      ||
+          window.msRequestAnimationFrame     ||
+          function( callback ){
+            window.setTimeout(callback, 1000 / 60);
+          };
+	})();
+
+
+
+		var canvas = document.createElement("canvas");
+		var ctx = canvas.getContext('2d');
+		var W = canvas.width = 800;
+		var H = canvas.height = 500;
+		document.getElementsByTagName("body")[0].appendChild(canvas);
+	
+	    canvas.addEventListener("click", goo, false);
+	    function goo(evt){
+	   		for(var i = 0; i < particulesCount; i++){
+				var p = new Particule(evt.clientX,evt.clientY);
+				particules.push(p);
+			}
+	    }
+
+		var gravity = 0.8;
+		var friction = 0.5;
+		var particules = [];
+		var particulesCount = 100;
+		function randomColor(){
+				return 'rgba(' +
+				parseInt(Math.random() *255) + ',' +	//r
+				parseInt(Math.random() *255) + ',' +	//g
+				parseInt(Math.random() *255) + ',' +	//b
+				0.5 + ')';	
+			};
+		
+		function Particule(startX,startY){
+			this.radius = 4;
+			this.color = randomColor();
+			this.x = startX;
+			this.y = startY;
+			this.velX = Math.random()*10-5;
+			this.velY = Math.random()*-10 -5;
+			
+			this.resetValues = function(){
+			};
+			//this.resetValues();
+			this.draw = function(){
+
+				ctx.fillStyle = this.color;
+				ctx.beginPath();
+				ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2, false);
+				ctx.fill();
+				ctx.closePath();
+			};
+
+		}
+		
+		function refresh(){
+			ctx.clearRect(0,0,W,H);
+			console.log(particules.length)
+
+			particules.forEach(function(p,i,a){
+				p.velY += gravity;
+				p.x += p.velX;
+				p.y += p.velY;
+				if(p.velX > 0){
+					p.velX-=friction/80;
+				}
+				else if(p.velX < 0){
+					p.velX+=friction/80;
+				}else{
+					p.velX = 0;
+					a.splice(i,1);
+				}
+				if(p.y > H-p.radius){
+					p.y = H-p.radius;
+					p.velY-=friction*4;
+					p.velY*=-1;
+				}else if( p.y < p.radius){
+					p.y = p.radius
+					p.velY-=friction*4;
+					p.velY*=-1;
+				}
+				if(p.x > W-p.radius ){
+					p.x = W-p.radius
+					p.velX-=friction;
+					p.velX*=-1;
+				}else if(p.x < p.radius){
+					p.x = p.radius
+					p.velX+=friction;
+					p.velX*=-1;
+				}
+				p.draw();
+
+			});
+		}
+
+
+		(function animloop(){
+		  requestAnimFrame(animloop);
+		  refresh();
+		})();
+
+	</script>
+</body>	
+</html>
+
+
